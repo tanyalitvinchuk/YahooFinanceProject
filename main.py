@@ -238,126 +238,137 @@ def get_last_trading_day():
     last_available_date = max(data.index)  # Get the most recent date from the data
     return last_available_date
 
-# Ask user what he/she wants to do
-print("What would you like to do?")
-main_actions_dictionary = {1: 'Download data for a list of tickers',
-                           2: 'Review Stocks of Special Interest list',
-                           3: 'Add tickers to Stocks of Special Interest list',
-                           4: 'Delete tickers from Stocks of Special Interest list',
-                           5: 'Review My Stocks list',
-                           6: 'Add tickers to My Stocks list',
-                           7: 'Delete tickers from My Stocks list',
-                           8: 'Clear My Stocks list',
-                           9: 'Get earnings calendar',
-                           10: 'Check earnings date for a specific stock',
-                           11: 'Get list of recent IPOs (priced and upcoming)',
-                           12: 'Get news for a certain ticker or a list of tickers'}
+while True:
+    print("\nWhat would you like to do?")
+    main_actions_dictionary = {1: 'Download data for a list of tickers',
+                               2: 'Review Stocks of Special Interest list',
+                               3: 'Add tickers to Stocks of Special Interest list',
+                               4: 'Delete tickers from Stocks of Special Interest list',
+                               5: 'Review My Stocks list',
+                               6: 'Add tickers to My Stocks list',
+                               7: 'Delete tickers from My Stocks list',
+                               8: 'Clear My Stocks list',
+                               9: 'Get earnings calendar',
+                               10: 'Check earnings date for a specific stock',
+                               11: 'Get list of recent IPOs (priced and upcoming)',
+                               12: 'Get news for a certain ticker or a list of tickers',
+                               0: 'Exit'}
 
-dictionary_for_choosing_tickers = {1: 'sp500_tickers', 2: 'sp400_tickers', 3: 'sp600_tickers', 4: 'sp_1500',
-                                   5: 'magnificent_seven', 6: 'bitcoin', 7: 'stocks_interest', 8: 'my_stocks',
-                                   9: 'big_list', 10: 'all_stocks'}
+    dictionary_for_choosing_tickers = {1: 'sp500_tickers', 2: 'sp400_tickers', 3: 'sp600_tickers', 4: 'sp_1500',
+                                       5: 'magnificent_seven', 6: 'bitcoin', 7: 'stocks_interest', 8: 'my_stocks',
+                                       9: 'big_list', 10: 'all_stocks'}
 
-for k, v in main_actions_dictionary.items():
-    print(f" {k} - {v}")
-chosen_number = int(input("Your choice: "))
-if chosen_number == 1:
-    if chosen_number == 1:
-        print("Please enter a number corresponding to the tickers list you want to use.")
-        for k, v in dictionary_for_choosing_tickers.items():
-            print(f" {k} - {v};")
-        tickers = dictionary_for_choosing_tickers[int(input("Your choice: "))]
-        a = GetStockData(tickers)
-
-        # Determine the latest trading day based on available data for a reference stock
-        last_trading_day = get_last_trading_day()
-        last_trading_day_str = last_trading_day.strftime('%Y-%m-%d')
-
-        # Get top movers and extremes
-        a.get_top_movers(last_trading_day_str)
-        hit_low, hit_high = a.get_companies_hit_52_week_extremes()
-elif chosen_number == 2 or chosen_number == 5:
-    if chosen_number == 2:
-        print("Here are the stocks you are interested in:")
-        df = pd.read_csv("stocks_interest.csv")
-        for ticker in df['ticker'].dropna():
-            print(ticker.strip())
-    elif chosen_number == 5:
-        print("Here are the stocks you are invested in:")
-        df = pd.read_csv("my_stocks.csv")
-        for ticker in df['ticker'].dropna():
-            print(ticker.strip())
-elif chosen_number == 3 or chosen_number == 6:
-    tickers_to_add = input(f"Provide tickers to add to a list: ")
-    filename = ""
-    if chosen_number == 3:
-        filename = "stocks_interest.csv"
-    if chosen_number == 6:
-        filename = "my_stocks.csv"
+    for k, v in main_actions_dictionary.items():
+        print(f" {k} - {v}")
     try:
+        chosen_number = int(input("Your choice: "))
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+        continue
+
+    if chosen_number == 0:
+        print("Goodbye!")
+        break
+    if chosen_number == 1:
+        if chosen_number == 1:
+            print("Please enter a number corresponding to the tickers list you want to use.")
+            for k, v in dictionary_for_choosing_tickers.items():
+                print(f" {k} - {v};")
+            tickers = dictionary_for_choosing_tickers[int(input("Your choice: "))]
+            a = GetStockData(tickers)
+
+            # Determine the latest trading day based on available data for a reference stock
+            last_trading_day = get_last_trading_day()
+            last_trading_day_str = last_trading_day.strftime('%Y-%m-%d')
+
+            # Get top movers and extremes
+            a.get_top_movers(last_trading_day_str)
+            hit_low, hit_high = a.get_companies_hit_52_week_extremes()
+    elif chosen_number == 2 or chosen_number == 5:
+        if chosen_number == 2:
+            print("Here are the stocks you are interested in:")
+            df = pd.read_csv("stocks_interest.csv")
+            for ticker in df['ticker'].dropna():
+                print(ticker.strip())
+        elif chosen_number == 5:
+            print("Here are the stocks you are invested in:")
+            df = pd.read_csv("my_stocks.csv")
+            for ticker in df['ticker'].dropna():
+                print(ticker.strip())
+    elif chosen_number == 3 or chosen_number == 6:
+        tickers_to_add = input(f"Provide tickers to add to a list: ")
+        filename = ""
+        if chosen_number == 3:
+            filename = "stocks_interest.csv"
+        if chosen_number == 6:
+            filename = "my_stocks.csv"
+        try:
+            df = pd.read_csv(filename)
+        except FileNotFoundError:
+            df = pd.DataFrame(columns=["ticker"])
+        # Clean and split the input string
+        new_tickers = [ticker.strip().upper() for ticker in tickers_to_add.split(",") if ticker.strip()]
+        # Combine and remove duplicates
+        all_tickers = pd.Series(df["ticker"].tolist() + new_tickers).drop_duplicates().sort_values()
+        # Save back to CSV
+        all_tickers.to_frame(name="ticker").to_csv("stocks_interest.csv", index=False)
+        print("Tickers added and file updated.")
+    elif chosen_number == 4 or chosen_number == 7:
+        tickers_to_delete = input(f"Provide tickers to delete from a list: ")
+        filename = ""
+        if chosen_number == 4:
+            filename = "stocks_interest.csv"
+        if chosen_number == 7:
+            filename = "my_stocks.csv"
+        # Load existing tickers
         df = pd.read_csv(filename)
-    except FileNotFoundError:
-        df = pd.DataFrame(columns=["ticker"])
-    # Clean and split the input string
-    new_tickers = [ticker.strip().upper() for ticker in tickers_to_add.split(",") if ticker.strip()]
-    # Combine and remove duplicates
-    all_tickers = pd.Series(df["ticker"].tolist() + new_tickers).drop_duplicates().sort_values()
-    # Save back to CSV
-    all_tickers.to_frame(name="ticker").to_csv("stocks_interest.csv", index=False)
-    print("Tickers added and file updated.")
-elif chosen_number == 4 or chosen_number == 7:
-    tickers_to_delete = input(f"Provide tickers to delete from a list: ")
-    filename = ""
-    if chosen_number == 4:
-        filename = "stocks_interest.csv"
-    if chosen_number == 7:
-        filename = "my_stocks.csv"
-    # Load existing tickers
-    df = pd.read_csv(filename)
-    # Clean and split the input string
-    tickers_to_delete_list = [ticker.strip().upper() for ticker in tickers_to_delete.split(",") if ticker.strip()]
-    # Filter out the tickers to be deleted
-    df_filtered = df[~df["ticker"].isin(tickers_to_delete_list)]
-    # Save back to CSV
-    df_filtered.to_csv(filename, index=False)
-    print("Tickers deleted and file updated.")
-elif chosen_number == 8:
-    df = pd.read_csv("my_stocks.csv")
-    empty_df = pd.DataFrame(columns=df.columns)
-    empty_df.to_csv("my_stocks.csv", index=False)
-    print("My Stocks list cleared")
-elif chosen_number == 9:
-    output_file = 'nasdaq_earnings_calendar.csv'
-    chosen_timeframe = input("Choose timeframe (today, tomorrow, this week, next week, this month, next month, this and next month): ")
-    if chosen_timeframe == 'today':
-        scraper = NasdaqEarningsScraper()
-        scraper.run(output_file)
-        scraper.print_reporting_companies()
+        # Clean and split the input string
+        tickers_to_delete_list = [ticker.strip().upper() for ticker in tickers_to_delete.split(",") if ticker.strip()]
+        # Filter out the tickers to be deleted
+        df_filtered = df[~df["ticker"].isin(tickers_to_delete_list)]
+        # Save back to CSV
+        df_filtered.to_csv(filename, index=False)
+        print("Tickers deleted and file updated.")
+    elif chosen_number == 8:
+        df = pd.read_csv("my_stocks.csv")
+        empty_df = pd.DataFrame(columns=df.columns)
+        empty_df.to_csv("my_stocks.csv", index=False)
+        print("My Stocks list cleared")
+    elif chosen_number == 9:
+        output_file = 'nasdaq_earnings_calendar.csv'
+        chosen_timeframe = input("Choose timeframe (today, tomorrow, this week, next week, this month, next month, this and next month): ")
+        if chosen_timeframe == 'today':
+            scraper = NasdaqEarningsScraper()
+            scraper.run(output_file)
+            scraper.print_reporting_companies()
+        else:
+            scraper = NasdaqEarningsScraper(chosen_timeframe)
+            scraper.run(output_file)
+    elif chosen_number == 10:
+        chosen_ticker = input("Provide a ticker: ")
+        a = yf.Ticker(chosen_ticker)
+        print(a.earnings_dates)
+    elif chosen_number == 11:
+        priced_ipos_scraper = NasdaqIPOScraper()
+        df = priced_ipos_scraper.scrape_all_ipos()
+        print(df)
+    elif chosen_number == 12:
+        chosen_option = input("Provide a list of tickers (e.g., TSLA,AAPL) or choose one of the existing lists "
+                              "(sp500_tickers, sp400_tickers, sp600_tickers, sp_1500, magnificent_seven, bitcoin, "
+                              "stocks_interest, my_stocks, big_list): ").strip()
+
+        predefined_lists = [
+            'sp500_tickers', 'sp400_tickers', 'sp600_tickers', 'sp_1500',
+            'magnificent_seven', 'bitcoin', 'stocks_interest', 'my_stocks', 'big_list'
+        ]
+
+        if chosen_option in predefined_lists:
+            news = GetNews(ticker_list_name=chosen_option)
+        else:
+            # Split user input like "TDUP, WGS" into ['TDUP', 'WGS']
+            custom_tickers = [t.strip().upper() for t in chosen_option.split(",") if t.strip()]
+            news = GetNews(tickers=custom_tickers)
+
+        news.run()
     else:
-        scraper = NasdaqEarningsScraper(chosen_timeframe)
-        scraper.run(output_file)
-elif chosen_number == 10:
-    chosen_ticker = input("Provide a ticker: ")
-    a = yf.Ticker(chosen_ticker)
-    print(a.earnings_dates)
-elif chosen_number == 11:
-    priced_ipos_scraper = NasdaqIPOScraper()
-    df = priced_ipos_scraper.scrape_all_ipos()
-    print(df)
-elif chosen_number == 12:
-    chosen_option = input("Provide a list of tickers (e.g., TSLA,AAPL) or choose one of the existing lists "
-                          "(sp500_tickers, sp400_tickers, sp600_tickers, sp_1500, magnificent_seven, bitcoin, "
-                          "stocks_interest, my_stocks, big_list): ").strip()
-
-    predefined_lists = [
-        'sp500_tickers', 'sp400_tickers', 'sp600_tickers', 'sp_1500',
-        'magnificent_seven', 'bitcoin', 'stocks_interest', 'my_stocks', 'big_list'
-    ]
-
-    if chosen_option in predefined_lists:
-        news = GetNews(ticker_list_name=chosen_option)
-    else:
-        # Split user input like "TDUP, WGS" into ['TDUP', 'WGS']
-        custom_tickers = [t.strip().upper() for t in chosen_option.split(",") if t.strip()]
-        news = GetNews(tickers=custom_tickers)
-
-    news.run()
+        print("Invalid option. Please choose from the list.")
