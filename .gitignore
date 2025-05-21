@@ -1,6 +1,6 @@
 *.csv
 !my_stocks.csv
-!stock_interest.csv
+!stocks_interest.csv
 !all_stocks.csv
 add_file.py
 additional.py
