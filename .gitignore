@@ -1,0 +1,14 @@
+*.csv
+!my_stocks.csv
+!stock_interest.csv
+!all_stocks.csv
+add_file.py
+additional.py
+checking.py
+.idea/
+__pycache__/
+*.pyc
+venv/
+env/
+.ipynb_checkpoints/
+.vscode/
