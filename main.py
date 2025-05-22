@@ -311,7 +311,7 @@ while True:
         # Combine and remove duplicates
         all_tickers = pd.Series(df["ticker"].tolist() + new_tickers).drop_duplicates().sort_values()
         # Save back to CSV
-        all_tickers.to_frame(name="ticker").to_csv("stocks_interest.csv", index=False)
+        all_tickers.to_frame(name="ticker").to_csv(filename, index=False)
         print("Tickers added and file updated.")
     elif chosen_number == 4 or chosen_number == 7:
         tickers_to_delete = input(f"Provide tickers to delete from a list: ")
