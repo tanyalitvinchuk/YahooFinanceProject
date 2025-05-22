@@ -34,7 +34,10 @@ class Tickers:
     def load_tickers_from_csv(self, filename):
         try:
             df = pd.read_csv(filename)
-            return df.iloc[:, 0].dropna().str.strip().tolist()
+            if "ticker" in df.columns:
+                return df["ticker"].dropna().astype(str).str.strip().tolist()
+            else:
+                return []
         except FileNotFoundError:
             return []
 

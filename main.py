@@ -232,6 +232,41 @@ class GetStockData:
         # Return results as DataFrames for further use
         return hit_52_week_low, hit_52_week_high
 
+def report_profit_or_loss(filename="my_stocks.csv"):
+    try:
+        df = pd.read_csv(filename)
+        required_columns = {"ticker", "price", "quantity"}
+        if not required_columns.issubset(df.columns):
+            print(f"CSV file must contain columns: {required_columns}")
+            return
+
+        for index, row in df.iterrows():
+            ticker = str(row["ticker"]).strip().upper()
+            try:
+                buy_price = float(row["price"])
+                quantity = int(row["quantity"])
+            except (ValueError, TypeError):
+                print(f"Skipping invalid row at index {index}: {row}")
+                continue
+
+            try:
+                stock = yf.Ticker(ticker)
+                current_price = stock.info.get("regularMarketPrice")
+                if current_price is None:
+                    raise ValueError("No market price available")
+            except Exception as e:
+                print(f"{ticker}: Error fetching current price: {e}")
+                continue
+
+            profit_loss = (current_price - buy_price) * quantity
+
+            print(f"{ticker}: Bought at ${buy_price:.2f}, Current ${current_price:.2f}, "
+                    f"Quantity {quantity}, Profit/Loss: ${profit_loss:.2f}")
+
+    except FileNotFoundError:
+        print(f"File '{filename}' not found.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 def get_last_trading_day():
     reference_stock = "AAPL"  # Use Apple as the reference stock
     data = yf.download(reference_stock, period="5d")  # Download the last 5 days of data
@@ -252,6 +287,7 @@ while True:
                                10: 'Check earnings date for a specific stock',
                                11: 'Get list of recent IPOs (priced and upcoming)',
                                12: 'Get news for a certain ticker or a list of tickers',
+                               13: "Show profit/loss on my stocks",
                                0: 'Exit'}
 
     dictionary_for_choosing_tickers = {1: 'sp500_tickers', 2: 'sp400_tickers', 3: 'sp600_tickers', 4: 'sp_1500',
@@ -370,5 +406,7 @@ while True:
             news = GetNews(tickers=custom_tickers)
 
         news.run()
+    elif chosen_number == 13:
+        report_profit_or_loss("my_stocks.csv")
     else:
         print("Invalid option. Please choose from the list.")

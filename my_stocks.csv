@@ -1,1 +1,2 @@
-ticker
+ticker,price,quantity
+TSLA,340.5,1
