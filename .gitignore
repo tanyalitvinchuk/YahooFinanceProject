@@ -2,6 +2,7 @@
 !my_stocks.csv
 !stocks_interest.csv
 !all_stocks.csv
+!company_info.csv
 add_file.py
 additional.py
 checking.py
