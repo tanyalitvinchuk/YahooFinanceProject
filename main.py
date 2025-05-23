@@ -244,7 +244,7 @@ def report_profit_or_loss(filename="my_stocks.csv"):
             ticker = str(row["ticker"]).strip().upper()
             try:
                 buy_price = float(row["price"])
-                quantity = int(row["quantity"])
+                quantity = float(row["quantity"])
             except (ValueError, TypeError):
                 print(f"Skipping invalid row at index {index}: {row}")
                 continue
