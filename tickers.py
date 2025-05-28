@@ -1,6 +1,7 @@
 #!/bin/python
 
 import pandas as pd
+import os
 
 
 class Tickers:
@@ -9,17 +10,24 @@ class Tickers:
         self.sp400url = 'https://en.wikipedia.org/wiki/List_of_S%26P_400_companies'
         self.sp600url = 'https://en.wikipedia.org/wiki/List_of_S%26P_600_companies'
 
-        self.stocks_interest_file = "stocks_interest.csv"
-        self.my_stocks_file = "my_stocks.csv"
-
         self.magnificent_seven = ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA"]
         self.bitcoin = ["GBTC", "IBIT", "FBTC", "ARKB", "BITB", "BTCO", "HODL", "BRRR", "MARA", "COIN", "MSTR"]
 
         self.tickers_cache = {}
 
+        # Get the directory where the currently running script is located
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        # Construct the full path to the CSV file
+        csv_file_path1 = os.path.join(current_dir, 'real_my_stocks.csv')
+        csv_file_path2 = os.path.join(current_dir, 'real_stocks_interest.csv')
+        # Check if the file exists and set the parameter
+        self.stocks_interest_file = 'real_stocks_interest.csv' if os.path.isfile(csv_file_path2) else 'stocks_interest.csv'
+        self.my_stocks_file = 'real_my_stocks.csv' if os.path.isfile(csv_file_path1) else 'my_stocks.csv'
+
         # Load from CSVs
         self.stocks_interest = self.load_tickers_from_csv(self.stocks_interest_file)
         self.my_stocks = self.load_tickers_from_csv(self.my_stocks_file)
+
 
     def __str__(self):
         return "Available tickers' lists are: 'sp500_tickers', 'sp400_tickers', 'sp600_tickers', 'sp_1500', " \

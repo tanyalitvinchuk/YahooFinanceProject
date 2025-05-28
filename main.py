@@ -232,9 +232,9 @@ class GetStockData:
         # Return results as DataFrames for further use
         return hit_52_week_low, hit_52_week_high
 
-def report_profit_or_loss(filename="my_stocks.csv"):
+def report_profit_or_loss():
     try:
-        df = pd.read_csv(filename)
+        df = pd.read_csv(my_stocks_parameter)
         required_columns = {"ticker", "price", "quantity"}
         if not required_columns.issubset(df.columns):
             print(f"CSV file must contain columns: {required_columns}")
@@ -272,6 +272,18 @@ def get_last_trading_day():
     data = yf.download(reference_stock, period="5d")  # Download the last 5 days of data
     last_available_date = max(data.index)  # Get the most recent date from the data
     return last_available_date
+
+# Get the directory where the currently running script is located
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the full path to the CSV files
+csv_file_path1 = os.path.join(current_dir, 'real_my_stocks.csv')
+csv_file_path2 = os.path.join(current_dir, 'real_stocks_interest.csv')
+
+# Check if the files exist and set the parameters accordingly
+my_stocks_parameter = 'real_my_stocks.csv' if os.path.isfile(csv_file_path1) else 'my_stocks.csv'
+stocks_interest_parameter = 'real_stocks_interest.csv' if os.path.isfile(csv_file_path2) else 'stocks_interest.csv'
+
 
 while True:
     print("\nWhat would you like to do?")
@@ -323,21 +335,21 @@ while True:
     elif chosen_number == 2 or chosen_number == 5:
         if chosen_number == 2:
             print("Here are the stocks you are interested in:")
-            df = pd.read_csv("stocks_interest.csv")
+            df = pd.read_csv(stocks_interest_parameter)
             for ticker in df['ticker'].dropna():
                 print(ticker.strip())
         elif chosen_number == 5:
             print("Here are the stocks you are invested in:")
-            df = pd.read_csv("my_stocks.csv")
+            df = pd.read_csv(my_stocks_parameter)
             for ticker in df['ticker'].dropna():
                 print(ticker.strip())
     elif chosen_number == 3 or chosen_number == 6:
         tickers_to_add = input(f"Provide tickers to add to a list: ")
         filename = ""
         if chosen_number == 3:
-            filename = "stocks_interest.csv"
+            filename = stocks_interest_parameter
         if chosen_number == 6:
-            filename = "my_stocks.csv"
+            filename = my_stocks_parameter
         try:
             df = pd.read_csv(filename)
         except FileNotFoundError:
@@ -353,9 +365,9 @@ while True:
         tickers_to_delete = input(f"Provide tickers to delete from a list: ")
         filename = ""
         if chosen_number == 4:
-            filename = "stocks_interest.csv"
+            filename = stocks_interest_parameter
         if chosen_number == 7:
-            filename = "my_stocks.csv"
+            filename = my_stocks_parameter
         # Load existing tickers
         df = pd.read_csv(filename)
         # Clean and split the input string
@@ -366,9 +378,9 @@ while True:
         df_filtered.to_csv(filename, index=False)
         print("Tickers deleted and file updated.")
     elif chosen_number == 8:
-        df = pd.read_csv("my_stocks.csv")
+        df = pd.read_csv(my_stocks_parameter)
         empty_df = pd.DataFrame(columns=df.columns)
-        empty_df.to_csv("my_stocks.csv", index=False)
+        empty_df.to_csv(my_stocks_parameter, index=False)
         print("My Stocks list cleared")
     elif chosen_number == 9:
         output_file = 'nasdaq_earnings_calendar.csv'
@@ -407,6 +419,6 @@ while True:
 
         news.run()
     elif chosen_number == 13:
-        report_profit_or_loss("my_stocks.csv")
+        report_profit_or_loss()
     else:
         print("Invalid option. Please choose from the list.")

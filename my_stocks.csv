@@ -1,2 +1,2 @@
-ticker,price,quantity
-VOO,539.39,1.5
+ticker,price,quantity,desired_selling_price
+VOO,539.39,1.5,
