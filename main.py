@@ -304,7 +304,7 @@ while True:
 
     dictionary_for_choosing_tickers = {1: 'sp500_tickers', 2: 'sp400_tickers', 3: 'sp600_tickers', 4: 'sp_1500',
                                        5: 'magnificent_seven', 6: 'bitcoin', 7: 'stocks_interest', 8: 'my_stocks',
-                                       9: 'big_list', 10: 'all_stocks'}
+                                       9: 'big_list', 10: 'all_us_tickers'}
 
     for k, v in main_actions_dictionary.items():
         print(f" {k} - {v}")
@@ -403,11 +403,11 @@ while True:
     elif chosen_number == 12:
         chosen_option = input("Provide a list of tickers (e.g., TSLA,AAPL) or choose one of the existing lists "
                               "(sp500_tickers, sp400_tickers, sp600_tickers, sp_1500, magnificent_seven, bitcoin, "
-                              "stocks_interest, my_stocks, big_list): ").strip()
+                              "stocks_interest, my_stocks, big_list, all_us_tickers): ").strip()
 
         predefined_lists = [
             'sp500_tickers', 'sp400_tickers', 'sp600_tickers', 'sp_1500',
-            'magnificent_seven', 'bitcoin', 'stocks_interest', 'my_stocks', 'big_list'
+            'magnificent_seven', 'bitcoin', 'stocks_interest', 'my_stocks', 'big_list', 'all_us_tickers'
         ]
 
         if chosen_option in predefined_lists:

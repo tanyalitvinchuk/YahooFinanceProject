@@ -2,6 +2,10 @@
 
 import pandas as pd
 import os
+import requests
+import yfinance as yf
+from datetime import datetime, timedelta
+
 
 
 class Tickers:
@@ -28,10 +32,20 @@ class Tickers:
         self.stocks_interest = self.load_tickers_from_csv(self.stocks_interest_file)
         self.my_stocks = self.load_tickers_from_csv(self.my_stocks_file)
 
+        self.headers = {
+            "User-Agent": (
+                f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                f"AppleWebKit/537.36 (KHTML, like Gecko) "
+                f"Chrome/113.0.0.0 Safari/537.36 "
+                f"(Contact: your-email@example.com)"
+            )
+        }
+        self.all_us_tickers = self.get_sec_tickers()
+
 
     def __str__(self):
         return "Available tickers' lists are: 'sp500_tickers', 'sp400_tickers', 'sp600_tickers', 'sp_1500', " \
-               "'magnificent_seven', 'bitcoin', 'stocks_interest', 'my_stocks', 'big_list'"
+               "'magnificent_seven', 'bitcoin', 'stocks_interest', 'my_stocks', 'big_list', 'all_us_tickers'"
 
     def fetch_tickers(self, url, force_refresh=False):
         if force_refresh or url not in self.tickers_cache:
@@ -47,6 +61,26 @@ class Tickers:
             else:
                 return []
         except FileNotFoundError:
+            return []
+
+    def get_sec_tickers(self):
+        """
+        Downloads a list of tickers from the SEC's public company dataset.
+
+        Returns:
+            list of str: Ticker symbols.
+        """
+        url = "https://www.sec.gov/files/company_tickers.json"
+
+        try:
+            response = requests.get(url, headers=self.headers)
+            response.raise_for_status()
+            data = response.json()
+            tickers = [entry['ticker'] for entry in data.values()]
+            return tickers
+
+        except Exception as e:
+            print(f"Error fetching tickers: {e}")
             return []
 
     def get_tickers_list(self, type: str):
@@ -68,5 +102,7 @@ class Tickers:
                 self.stocks_interest +
                 self.my_stocks
             ))
+        elif type == 'all_us_tickers':
+            return self.all_us_tickers
         else:
             return getattr(self, type, [])
